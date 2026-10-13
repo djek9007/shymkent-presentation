@@ -1,0 +1,9 @@
+.env
+.env.*
+.git
+web/node_modules
+web/dist
+bin
+var
+output
+graphify-out

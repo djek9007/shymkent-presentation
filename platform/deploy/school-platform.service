@@ -1,0 +1,17 @@
+[Unit]
+Description=School platform API
+After=network.target postgresql.service
+[Service]
+User=school
+Group=school
+WorkingDirectory=/srv/school-platform
+EnvironmentFile=/etc/school-platform.env
+ExecStart=/srv/school-platform/bin/server
+Restart=on-failure
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/school-platform/var/uploads
+[Install]
+WantedBy=multi-user.target

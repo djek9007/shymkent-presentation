@@ -1,0 +1,50 @@
+name: shymkent-school-local
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: school
+      POSTGRES_USER: school
+      # Public local demo credential; database has no published port.
+      POSTGRES_PASSWORD: local-demo-database
+    volumes:
+      - postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U school -d school"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.local
+      target: api
+    environment:
+      DATABASE_URL: postgres://school:local-demo-database@postgres:5432/school?sslmode=disable
+      BASE_DOMAIN: school.localhost
+      DEV_HTTP: "1"
+      LISTEN_ADDR: 0.0.0.0:8080
+      UPLOAD_DIR: /app/var/uploads
+    volumes:
+      - uploads:/app/var/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "--header=Host: school.localhost", "http://127.0.0.1:8080/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.local
+      target: web
+    ports:
+      - "127.0.0.1:5173:80"
+    depends_on:
+      api:
+        condition: service_healthy
+volumes:
+  postgres:
+  uploads:

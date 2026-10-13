@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+web/node_modules/
+web/dist/
+bin/
+var/
+*.log
+
+.playwright-cli/
+__pycache__/
+tmp/
