@@ -1,0 +1,63 @@
+name: school-test
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: school
+      POSTGRES_USER: school
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U school -d school"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.test
+      target: api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://school:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/school?sslmode=disable
+      BASE_DOMAIN: school.zangarengineering.kz
+      LISTEN_ADDR: 0.0.0.0:8080
+      UPLOAD_DIR: /app/var/uploads
+    volumes:
+      - uploads:/app/var/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "--header=Host: school.zangarengineering.kz", "http://127.0.0.1:8080/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.test
+      target: web
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - default
+      - edge
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: zangar_edge
+      traefik.http.routers.school-test.rule: Host(`school.zangarengineering.kz`)
+      traefik.http.routers.school-test.entrypoints: websecure
+      traefik.http.routers.school-test.tls.certresolver: le
+      traefik.http.services.school-test.loadbalancer.server.port: "80"
+networks:
+  edge:
+    external: true
+    name: zangar_edge
+volumes:
+  postgres:
+  uploads:
