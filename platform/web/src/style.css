@@ -45,3 +45,43 @@
 .banner-controls{display:flex;align-items:center;gap:10px}.banner-controls button{background:white;border:1px solid #cbd5e1;border-radius:4px;padding:4px 10px;color:#123e65;cursor:pointer}
 
 .banner-admin-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:20px 0}.banner-admin-gallery img{width:100%;height:180px;object-fit:cover;border-radius:8px}.banner-thumbnails{display:flex;gap:12px;overflow-x:auto;padding:10px 2px;margin-bottom:20px}.banner-thumbnails button{flex:0 0 120px;padding:3px;border:2px solid transparent;border-radius:8px;background:white;cursor:pointer}.banner-thumbnails button[aria-pressed=true]{border-color:#0065a8}.banner-thumbnails img{display:block;width:100%;height:72px;object-fit:cover;border-radius:4px}
+
+/* Compact administration and expandable menu settings. */
+.admin-shell main.admin-workspace{grid-template-columns:210px minmax(0,1fr);gap:24px;padding-top:20px}
+.admin-shell .site-header{padding-top:16px;padding-bottom:16px}
+.admin-shell .editor-card{padding:24px;border-radius:10px}
+.admin-shell .section-heading{margin:0 0 20px}
+.admin-shell .section-heading h1{font-size:1.65rem}
+.admin-shell .eyebrow{margin-bottom:8px}
+.admin-shell .admin-toolbar{gap:12px;margin-bottom:18px;padding:16px;background:#fff;border:1px solid #dce3eb;border-radius:10px}
+.admin-toolbar label{font-size:12px}
+.admin-shell input,.admin-shell select{padding:9px 12px}
+.admin-shell th,.admin-shell td{padding:12px 16px}
+.admin-sidebar{padding:18px 10px;max-height:calc(100dvh - 48px);overflow:auto}
+.admin-navigation button{padding:10px 12px;font-size:14px}
+.admin-content .section-heading .actions{margin:0;gap:8px}
+.menu-editor .nested-menu-row{display:block;margin:0 0 8px calc(var(--menu-depth)*20px);padding:0;border:1px solid #dce6ef;border-left:3px solid #cad9e6;border-radius:8px;background:#fff}
+.menu-editor .menu-folder-row{border-left-color:#0065a8;background:#f3f7fb}
+.menu-row-heading{display:flex;align-items:center;gap:8px;padding-right:12px}
+.menu-row-toggle{display:flex;align-items:center;gap:12px;flex:1;min-width:0;padding:12px;border:0;background:transparent;text-align:left;color:#20344b}
+.menu-row-toggle:hover{background:#edf4fa}
+.menu-row-title{flex:1;min-width:0;overflow-wrap:anywhere}
+.menu-row-title strong{display:block;font-size:14px}
+.menu-row-title small{display:block;color:#6a7d90;font-size:11px}
+.menu-editor .menu-index{width:30px;font-size:11px;color:#73869a}
+.menu-status{font-size:11px;color:#216544;background:#e8f3ec;padding:3px 8px;border-radius:20px;white-space:nowrap}
+.menu-status.is-hidden{color:#6c7580;background:#edf0f3}
+.menu-expand{font-size:20px;width:18px;text-align:center;color:#0065a8}
+.menu-editor .move-controls{display:flex;gap:4px;margin:0}
+.menu-editor .move-controls button{padding:6px 10px;min-height:36px}
+.menu-row-body{padding:16px;border-top:1px solid #dce6ef;display:flex;align-items:flex-start;gap:24px}
+.menu-editor .menu-fields{width:auto}
+.menu-editor .menu-labels{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.menu-editor .menu-controls{align-items:flex-start;min-width:120px}
+.menu-editor .menu-controls .check{margin:0}
+.menu-editor .menu-placement{margin-top:12px}
+.menu-save-bar{position:sticky;bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:20px;padding:14px 16px;border:1px solid #cedbe7;border-radius:8px;background:#f5f9fc;box-shadow:0 4px 16px #12344c18;z-index:2}
+.menu-save-bar span{font-size:12px;color:#52687c}
+.menu-save-bar .primary-button{background:#0065a8;color:white;border-color:#0065a8;white-space:nowrap}
+@media(max-width:900px){.admin-shell main.admin-workspace{display:block;padding:16px 14px 40px}.admin-shell .editor-card{padding:16px}.admin-nav-toggle{width:100%;text-align:left;margin-bottom:14px}.admin-toolbar{align-items:stretch}.admin-toolbar label{max-width:none}}
+@media(max-width:600px){.menu-editor .nested-menu-row{margin-left:calc(var(--menu-depth)*8px)}.menu-row-heading{padding-right:6px;gap:0}.menu-row-toggle{padding:10px 8px;gap:6px;flex-wrap:wrap}.menu-editor .menu-index{width:22px}.menu-row-title{flex-basis:calc(100% - 30px)}.menu-status{padding:2px 6px;font-size:10px;margin-left:28px}.menu-row-body{flex-direction:column;padding:12px;gap:14px}.menu-editor .menu-fields{width:100%}.menu-editor .menu-labels{grid-template-columns:1fr}.menu-editor .menu-controls{width:100%;flex-direction:row;justify-content:space-between;flex-wrap:wrap}.menu-save-bar{bottom:8px;padding:12px;flex-wrap:wrap;gap:8px}.menu-save-bar button{width:100%}.admin-content .section-heading .actions{width:100%}.admin-content .section-heading .actions button{flex:1;font-size:12px}.admin-shell .section-heading h1{font-size:1.5rem}}
