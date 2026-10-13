@@ -1,10 +1,16 @@
 .DEFAULT_GOAL := help
 
 LOCAL_COMPOSE = docker compose -f platform/deploy/compose.local.yaml
+DEV_COMPOSE = docker compose -f platform/deploy/compose.dev.yaml
 
-.PHONY: help check install local-up local-down local-logs deploy deploy-status deploy-logs
+.PHONY: help check install dev dev-down dev-logs dev-status dev-rebuild local-up local-down local-logs deploy deploy-status deploy-logs
 
 help:
+	@echo 'make dev           — локальная разработка с обновлением Vue без пересборки'
+	@echo 'make dev-down      — остановить dev, сохранив данные'
+	@echo 'make dev-rebuild   — пересобрать API после изменений Go'
+	@echo 'make dev-status    — состояние dev-контейнеров'
+	@echo 'make dev-logs      — последние dev-логи'
 	@echo 'make install       — установить зависимости фронтенда'
 	@echo 'make check         — Go tests/vet и сборка фронтенда'
 	@echo 'make local-up      — собрать и запустить локальный Docker'
@@ -16,6 +22,23 @@ help:
 
 install:
 	cd platform/web && npm ci
+
+dev:
+	$(DEV_COMPOSE) up -d --build --wait --wait-timeout 300
+	@echo 'Портал: http://school.localhost:5173/'
+	@echo 'Админка школы: http://demo-school-51.school.localhost:5173/admin/'
+
+dev-down:
+	$(DEV_COMPOSE) down
+
+dev-rebuild:
+	$(DEV_COMPOSE) up -d --build --wait --wait-timeout 300 api
+
+dev-status:
+	$(DEV_COMPOSE) ps
+
+dev-logs:
+	$(DEV_COMPOSE) logs --tail=50
 
 check:
 	cd platform && go test ./... && go vet ./...
