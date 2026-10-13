@@ -54,6 +54,22 @@ services:
       traefik.http.routers.school-test.entrypoints: websecure
       traefik.http.routers.school-test.tls.certresolver: le
       traefik.http.services.school-test.loadbalancer.server.port: "80"
+      traefik.http.routers.demo-school-51.rule: Host(`demo-school-51.school.zangarengineering.kz`)
+      traefik.http.routers.demo-school-51.entrypoints: websecure
+      traefik.http.routers.demo-school-51.tls.certresolver: le
+      traefik.http.routers.demo-school-51.service: school-test
+      traefik.http.routers.demo-school-52.rule: Host(`demo-school-52.school.zangarengineering.kz`)
+      traefik.http.routers.demo-school-52.entrypoints: websecure
+      traefik.http.routers.demo-school-52.tls.certresolver: le
+      traefik.http.routers.demo-school-52.service: school-test
+      traefik.http.routers.demo-preschool-7.rule: Host(`demo-preschool-7.school.zangarengineering.kz`)
+      traefik.http.routers.demo-preschool-7.entrypoints: websecure
+      traefik.http.routers.demo-preschool-7.tls.certresolver: le
+      traefik.http.routers.demo-preschool-7.service: school-test
+      traefik.http.routers.demo-disabled.rule: Host(`demo-disabled.school.zangarengineering.kz`)
+      traefik.http.routers.demo-disabled.entrypoints: websecure
+      traefik.http.routers.demo-disabled.tls.certresolver: le
+      traefik.http.routers.demo-disabled.service: school-test
 networks:
   edge:
     external: true
