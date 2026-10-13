@@ -41,3 +41,5 @@
 .admin-shell .site-header .brand{flex:1;min-width:180px}
 .admin-shell .site-header .brand span{overflow-wrap:anywhere}
 }
+
+.banner-controls{display:flex;align-items:center;gap:10px}.banner-controls button{background:white;border:1px solid #cbd5e1;border-radius:4px;padding:4px 10px;color:#123e65;cursor:pointer}

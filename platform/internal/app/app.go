@@ -68,7 +68,7 @@ type requestState struct {
 }
 type stateKey struct{}
 
-var kinds = map[string]bool{"about": true, "administration": true, "teachers": true, "news": true, "documents": true, "gallery": true, "schedule": true}
+var kinds = map[string]bool{"about": true, "administration": true, "teachers": true, "news": true, "documents": true, "gallery": true, "banners": true, "schedule": true}
 var slugRE = regexp.MustCompile(`^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$`)
 
 func New() (*App, error) {

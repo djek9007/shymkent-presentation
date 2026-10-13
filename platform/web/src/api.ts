@@ -11,7 +11,7 @@ export interface Upload {width:number;height:number;id:string;name:string;mime:s
 export interface Content {schedule_date?:string;id:number;organization_id:number;kind:string;published:boolean;position:number;translations:Record<string,{title:string;body:string}>;updated_at:string;files:Upload[]}
 export interface List<T>{items:T[];total:number;page:number;page_size:number}
 export const sections=[['about','Ұйым туралы','Об организации'],['administration','Әкімшілік','Администрация'],['teachers','Педагогтер','Педагоги'],['news','Жаңалықтар','Новости'],['documents','Құжаттар','Документы'],['gallery','Фотогалерея','Галерея'],['schedule','Кесте','Расписание'],['contacts','Байланыс','Контакты']]
-export function sectionName(kind:string){const s=sections.find(s=>s[0]===kind);return s?t(s[1],s[2]):kind}
+export function sectionName(kind:string){if(kind==='banners')return t('Баннерлер','Баннеры');const s=sections.find(s=>s[0]===kind);return s?t(s[1],s[2]):kind}
 export function translated(values:Record<string,string>){return values[lang.value]||t('Аударма әлі қосылмаған','Перевод ещё не добавлен')}
 export interface MenuItem {key:string;label:Record<string,string>;visible:boolean;parent?:string;group?:boolean;url?:string}
 export interface MenuNode extends MenuItem {children:MenuNode[]}

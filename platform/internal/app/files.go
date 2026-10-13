@@ -146,8 +146,8 @@ func (a *App) upload(w http.ResponseWriter, r *http.Request) {
 	}
 	mt, valid := fileType(h.Filename, b)
 	img := strings.HasPrefix(mt, "image/")
-	if !valid || len(b) > 20<<20 || (img && len(b) > 10<<20) || (kind == "schedule" && mt != "application/pdf") || ((purpose == "logo" || kind == "gallery") && !img) {
-		fields(w, map[string]string{"file": "JPEG/PNG/WebP до 10 МБ, PDF/DOCX/XLSX до 20 МБ; расписание: PDF; галерея и логотип: изображения"})
+	if !valid || len(b) > 20<<20 || (img && len(b) > 10<<20) || (kind == "schedule" && mt != "application/pdf") || ((purpose == "logo" || kind == "gallery" || kind == "banners") && !img) {
+		fields(w, map[string]string{"file": "JPEG/PNG/WebP до 10 МБ, PDF/DOCX/XLSX до 20 МБ; расписание: PDF; баннеры, галерея и логотип: изображения"})
 		return
 	}
 	id := token()

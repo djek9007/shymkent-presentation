@@ -166,6 +166,31 @@ func TestIntegration(t *testing.T) {
 	if data["total"] != float64(1) {
 		t.Fatal("school admin sees other organizations")
 	}
+	// Banners use the same tenant boundaries and publication workflow as content.
+	banner := Content{Kind: "banners", Position: 2, Translations: map[string]Translation{"ru": {Title: "Школьный баннер"}}}
+	w, data = request("51.school.localhost", "POST", "/api/v1/admin/content", banner, staffCookie, staffCSRF)
+	expect(w, 200)
+	bannerID := int64(data["id"].(float64))
+	w, data = request("51.school.localhost", "GET", "/api/v1/content?kind=banners", nil, "", "")
+	expect(w, 200)
+	if data["total"] != float64(0) {
+		t.Fatal("draft banner is public")
+	}
+	banner.Published = true
+	w, _ = request("51.school.localhost", "PUT", fmt.Sprintf("/api/v1/admin/content/%d", bannerID), banner, staffCookie, staffCSRF)
+	expect(w, 200)
+	w, data = request("51.school.localhost", "GET", "/api/v1/content?kind=banners", nil, "", "")
+	expect(w, 200)
+	if data["total"] != float64(1) {
+		t.Fatal("published banner missing")
+	}
+	w, data = request("sad-51.school.localhost", "GET", "/api/v1/content?kind=banners", nil, "", "")
+	expect(w, 200)
+	if data["total"] != float64(0) {
+		t.Fatal("banner leaked to another school")
+	}
+	w, _ = request("51.school.localhost", "DELETE", fmt.Sprintf("/api/v1/admin/content/%d", bannerID), nil, staffCookie, staffCSRF)
+	expect(w, 204)
 	// Menu persistence, public rendering data and tenant isolation.
 	if _, e = a.DB.Exec(ctx, `UPDATE organizations SET hidden_sections='["schedule"]'::jsonb WHERE id=$1`, first); e != nil {
 		t.Fatal(e)

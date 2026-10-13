@@ -35,3 +35,6 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS active boolean NOT NULL DEFAULT true;
 CREATE TABLE IF NOT EXISTS site_settings (
  site_id bigint PRIMARY KEY CHECK(site_id >= 0), menu jsonb NOT NULL
 );
+
+ALTER TABLE content DROP CONSTRAINT IF EXISTS content_kind_check;
+ALTER TABLE content ADD CONSTRAINT content_kind_check CHECK(kind IN ('about','administration','teachers','news','documents','gallery','schedule','banners'));
