@@ -28,6 +28,7 @@ type App struct {
 	DB                    *pgxpool.Pool
 	Domain, Addr, Uploads string
 	Secure                bool
+	TrustProxy            bool
 	Policy                *bluemonday.Policy
 }
 type User struct {
@@ -101,7 +102,7 @@ func New() (*App, error) {
 	p.AllowURLSchemes("https", "http", "mailto")
 	p.RequireParseableURLs(true)
 	p.RequireNoFollowOnLinks(true)
-	return &App{pool, d, addr, uploads, os.Getenv("DEV_HTTP") != "1", p}, nil
+	return &App{DB: pool, Domain: d, Addr: addr, Uploads: uploads, Secure: os.Getenv("DEV_HTTP") != "1", TrustProxy: os.Getenv("TRUST_PROXY") == "1", Policy: p}, nil
 }
 func (a *App) Command(args []string) error {
 	switch args[0] {
@@ -349,6 +350,20 @@ func (a *App) allow(w http.ResponseWriter, r *http.Request, org int64) bool {
 	return true
 }
 func (a *App) requireCentral(w http.ResponseWriter, r *http.Request) bool { return a.allow(w, r, 0) }
+
+// TRUST_PROXY is only for an API reachable exclusively through a trusted reverse proxy.
+func (a *App) clientIP(r *http.Request) string {
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		ip = r.RemoteAddr
+	}
+	if parsed := net.ParseIP(ip); parsed != nil && (parsed.IsLoopback() || a.TrustProxy) {
+		if forwarded := net.ParseIP(r.Header.Get("X-Real-IP")); forwarded != nil {
+			return forwarded.String()
+		}
+	}
+	return ip
+}
 func (a *App) login(w http.ResponseWriter, r *http.Request) {
 	var in struct {
 		Login    string `json:"login"`
@@ -357,13 +372,7 @@ func (a *App) login(w http.ResponseWriter, r *http.Request) {
 	if !decode(w, r, &in) {
 		return
 	}
-	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
-	if parsed := net.ParseIP(ip); parsed != nil && parsed.IsLoopback() {
-		if forwarded := net.ParseIP(r.Header.Get("X-Real-IP")); forwarded != nil {
-			ip = forwarded.String()
-		}
-	}
-	key := hash(ip)
+	key := hash(a.clientIP(r))
 	var attempts int
 	e := a.DB.QueryRow(r.Context(), `INSERT INTO login_attempts(key,attempts,window_start) VALUES($1,1,now()) ON CONFLICT(key) DO UPDATE SET attempts=CASE WHEN login_attempts.window_start<now()-interval '15 minutes' THEN 1 ELSE login_attempts.attempts+1 END,window_start=CASE WHEN login_attempts.window_start<now()-interval '15 minutes' THEN now() ELSE login_attempts.window_start END RETURNING attempts`, key).Scan(&attempts)
 	if e != nil {

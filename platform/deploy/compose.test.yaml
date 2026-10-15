@@ -23,6 +23,7 @@ services:
     environment:
       DATABASE_URL: postgres://school:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/school?sslmode=disable
       BASE_DOMAIN: school.zangarengineering.kz
+      TRUST_PROXY: "1"
       LISTEN_ADDR: 0.0.0.0:8080
       UPLOAD_DIR: /app/var/uploads
     volumes:

@@ -23,6 +23,7 @@ services:
       DATABASE_URL: postgres://school:local-demo-database@postgres:5432/school?sslmode=disable
       BASE_DOMAIN: school.localhost
       DEV_HTTP: "1"
+      TRUST_PROXY: "1"
       LISTEN_ADDR: 0.0.0.0:8080
       UPLOAD_DIR: /app/var/uploads
     volumes:

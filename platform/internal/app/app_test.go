@@ -38,6 +38,31 @@ func TestValidation(t *testing.T) {
 		t.Fatal("password limits")
 	}
 }
+func TestClientIP(t *testing.T) {
+	for _, tc := range []struct {
+		name, remote, forwarded, want string
+		trust                         bool
+	}{
+		{"direct ignores spoofed header", "192.0.2.10:1234", "198.51.100.1", "192.0.2.10", false},
+		{"untrusted container", "172.20.0.2:1234", "198.51.100.1", "172.20.0.2", false},
+		{"trusted container first client", "172.20.0.2:1234", "198.51.100.1", "198.51.100.1", true},
+		{"trusted container second client", "172.20.0.2:1234", "198.51.100.2", "198.51.100.2", true},
+		{"loopback proxy", "127.0.0.1:1234", "198.51.100.1", "198.51.100.1", false},
+		{"invalid forwarded address", "172.20.0.2:1234", "not-an-ip", "172.20.0.2", true},
+		{"IPv6 proxy", "[::1]:1234", "2001:db8::1", "2001:db8::1", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r := httptest.NewRequest("POST", "http://school.localhost/api/v1/auth/login", nil)
+			r.RemoteAddr = tc.remote
+			r.Header.Set("X-Real-IP", tc.forwarded)
+			a := &App{TrustProxy: tc.trust}
+			if got := a.clientIP(r); got != tc.want {
+				t.Fatalf("IP %q want %q", got, tc.want)
+			}
+		})
+	}
+}
+
 func TestIntegration(t *testing.T) {
 	dsn := os.Getenv("TEST_DATABASE_URL")
 	if dsn == "" {
@@ -124,6 +149,8 @@ func TestIntegration(t *testing.T) {
 		expect(w, 200)
 		return d["temporary_password"].(string)
 	}
+	w, _ = request("school.localhost", "POST", fmt.Sprintf("/api/v1/admin/organizations/%d/account", first), map[string]string{"login": "has space"}, adminCookie, adminCSRF)
+	expect(w, 422)
 	temporary := account(first, "school51")
 	_ = account(second, "preschool51")
 	for _, attempt := range []struct{ host, login, password string }{{"school.localhost", "school51", temporary}, {"sad-51.school.localhost", "school51", temporary}, {"51.school.localhost", "admin", "Initial-admin-password"}} {
@@ -468,6 +495,11 @@ func TestIntegration(t *testing.T) {
 		}
 		return result
 	}
+	w, _ = request("school.localhost", "GET", "/files/school59-knowledge-day?thumbnail=1", nil, "", "")
+	expect(w, 200)
+	if w.Header().Get("Content-Type") != "image/jpeg" || http.DetectContentType(w.Body.Bytes()) != "image/jpeg" {
+		t.Fatal("original JPEG thumbnail served with wrong MIME")
+	}
 	seededCounts := counts()
 	var demoOrg int64
 	if err := a.DB.QueryRow(ctx, "SELECT id FROM organizations WHERE slug='demo-school-51'").Scan(&demoOrg); err != nil {
@@ -555,6 +587,20 @@ func TestIntegration(t *testing.T) {
 		if err = a.DB.QueryRow(ctx, "SELECT count(*) FROM content WHERE organization_id=$1 AND kind=$2 AND published", demoOrg, kind).Scan(&count); err != nil || count != expected {
 			t.Fatalf("school %s: count %d want %d: %v", kind, count, expected, err)
 		}
+	}
+	// A standalone seed-school must also populate the date of a newly created schedule.
+	if _, err = a.DB.Exec(ctx, "DELETE FROM uploads WHERE organization_id=$1;", demoOrg); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = a.DB.Exec(ctx, "DELETE FROM content WHERE organization_id=$1 AND kind='schedule'", demoOrg); err != nil {
+		t.Fatal(err)
+	}
+	if err = a.seedSchool(); err != nil {
+		t.Fatal(err)
+	}
+	var hasDate bool
+	if err = a.DB.QueryRow(ctx, "SELECT schedule_date IS NOT NULL FROM content WHERE organization_id=$1 AND kind='schedule'", demoOrg).Scan(&hasDate); err != nil || !hasDate {
+		t.Fatal("new school schedule has no date", err)
 	}
 	a.Secure = true
 	if err = a.seedSchool(); err == nil {

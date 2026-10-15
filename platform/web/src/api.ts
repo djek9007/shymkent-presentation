@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 export const lang=ref<'kk'|'ru'>(localStorage.getItem('language')==='ru'?'ru':'kk')
+document.documentElement.lang=lang.value
 export function language(value:'kk'|'ru'){lang.value=value;localStorage.setItem('language',value);document.documentElement.lang=value}
 export function t(kk:string,ru:string){return lang.value==='kk'?kk:ru}
 export let csrf=''

@@ -88,7 +88,7 @@ func (a *App) seedSchool() error {
 		if cid != 0 {
 			_, err = tx.Exec(ctx, "UPDATE content SET translations=$1,published=true,position=$2,updated_at=$3::timestamptz,schedule_date=CASE WHEN kind='schedule' THEN $3::date ELSE schedule_date END WHERE id=$4", translations, position, m.Date, cid)
 		} else {
-			err = tx.QueryRow(ctx, "INSERT INTO content(organization_id,kind,published,position,translations,updated_at) VALUES($1,$2,true,$3,$4,$5::timestamptz) RETURNING id", org, m.Kind, position, translations, m.Date).Scan(&cid)
+			err = tx.QueryRow(ctx, "INSERT INTO content(organization_id,kind,published,position,translations,updated_at,schedule_date) VALUES($1,$2,true,$3,$4,$5::timestamptz,CASE WHEN $2='schedule' THEN $5::date END) RETURNING id", org, m.Kind, position, translations, m.Date).Scan(&cid)
 		}
 		if err != nil {
 			return err

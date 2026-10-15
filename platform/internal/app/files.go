@@ -289,7 +289,9 @@ func (a *App) file(w http.ResponseWriter, r *http.Request) {
 	mt := f.MIME
 	if r.URL.Query().Get("thumbnail") == "1" && f.Thumbnail != "" {
 		path = f.Thumbnail
-		mt = "image/png"
+		if path != f.Path {
+			mt = "image/png"
+		}
 	}
 	file, e := os.Open(filepath.Join(a.Uploads, path))
 	if e != nil {

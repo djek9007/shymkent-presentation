@@ -223,8 +223,8 @@ func (a *App) account(w http.ResponseWriter, r *http.Request) {
 	if !decode(w, r, &in) {
 		return
 	}
-	if len(in.Login) < 3 || len(in.Login) > 100 {
-		fields(w, map[string]string{"login": "От 3 до 100 символов"})
+	if !validLogin(in.Login) {
+		fields(w, map[string]string{"login": "От 3 до 100 байт, без пробелов"})
 		return
 	}
 	password := token()[:24]
